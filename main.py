@@ -23,7 +23,7 @@ from glob import glob
 keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
 titleList = ['chrome', 'teams']  # Social media list
 path = glob("tokenzier/*") #Because the tf model will be saved in a random subdirectory inside "tf/".
-print(path)
+print("initializing")
 os.environ["TFHUB_CACHE_DIR"] = "tokenzier/"  # Set tf model download path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Filter out INFO & WARNING messages
 FullTokenizer = bert.bert_tokenization.FullTokenizer  #This is where it takes long time
