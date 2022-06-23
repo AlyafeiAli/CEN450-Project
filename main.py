@@ -19,6 +19,7 @@ from tensorflow.keras import layers
 import bert
 import sys
 from glob import glob
+from ourFirebase import *
 
 keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
 titleList = ['chrome', 'teams']  # Social media list
@@ -136,6 +137,7 @@ def process():  # Take screenshots and transcript.
             if get_prediction(line2.strip()):  # Toxic
                 # Inside get prediction, do for each line (Done already in one of the files)
                 print('Toxic line: ', line.strip())
+                send(line.strip())
                 print("")
             else:
                 print("Safe line: ", line.strip())
