@@ -47,11 +47,11 @@ def get_prediction(sentence):
     model = tf.saved_model.load('model/')
     output = model(inputs, training=False)
     sentiment = math.floor(output * 2)
-    if output < 0.7:
+    if output < 0.85:
         # print("Output of the model: {}\nPredicted: NOT Toxic".format(output))
         return False
 
-    elif output >= 0.7:
+    elif output >= 0.85:
         # print("Output of the model: {}\nPredicted: TOXIC".format(output))
         return True
 
