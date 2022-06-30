@@ -23,8 +23,9 @@ from ourFirebase import *
 
 keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
 titleList = ['chrome', 'teams']  # Social media list
-path = glob("tokenzier/*") #Because the tf model will be saved in a random subdirectory inside "tf/".
+child = 'null'
 print("initializing")
+path = glob("tokenzier/*") #Because the tf model will be saved in a random subdirectory inside "tf/".
 os.environ["TFHUB_CACHE_DIR"] = "tokenzier/"  # Set tf model download path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Filter out INFO & WARNING messages
 FullTokenizer = bert.bert_tokenization.FullTokenizer  #This is where it takes long time
@@ -34,7 +35,7 @@ vocab_file = bert_layer.resolved_object.vocab_file.asset_path.numpy()  # Have ac
 do_lower_case = bert_layer.resolved_object.do_lower_case.numpy()
 tokenizer = FullTokenizer(vocab_file, do_lower_case)
 cwd = os.getcwd()
-print("Ready.")
+
 
 
 def encode_sentence(sent):
@@ -56,7 +57,7 @@ def get_prediction(sentence):
         return True
 
 
-def supreme(interval):  # Create the directory, then call the screenshot/transcript process based on the interval.
+def supreme():  # Create the directory, then call the screenshot/transcript process based on the interval.
     # Default number of times should be 86400, which is the number of seconds in a day.
     try:
         os.mkdir("process")
@@ -65,8 +66,8 @@ def supreme(interval):  # Create the directory, then call the screenshot/transcr
     counter = 0
     for x in range(5):  # number of iterations to make before erasing everything (Idea: set to purge every 24 hours)
         counter += 1
-        sleep(interval)
-        process() if counter <= 4 else begin(interval)
+        sleep(5)
+        process() if counter <= 4 else begin()
 
 
 def process():  # Take screenshots and transcript.
@@ -137,10 +138,11 @@ def process():  # Take screenshots and transcript.
             if get_prediction(line2.strip()):  # Toxic
                 # Inside get prediction, do for each line (Done already in one of the files)
                 print('Toxic line: ', line.strip())
-                send(line.strip())
+                send(child, line.strip(), name)
                 print("")
             else:
                 print("Safe line: ", line.strip())
+                # send(child, line.strip(), name) #For testing
                 print("")
 
         print('Done taking screenshot and OCRing')
@@ -148,11 +150,11 @@ def process():  # Take screenshots and transcript.
         print("No chat app found")
 
 
-def begin(f):  # Delete the files after 24 hours have passed, then call supreme again.
+def begin():  # Delete the files after 24 hours have passed, then call supreme again.
 
     shutil.rmtree('process',
                   ignore_errors=True)  # Delete everything inside the folder, ignore errors in cases like it doesn't exist
-    supreme(f)
+    supreme()
 
     # # Overwrite the Files if they exist
     # directory = "./process"
@@ -167,27 +169,27 @@ def begin(f):  # Delete the files after 24 hours have passed, then call supreme 
     #     pass
 
 
-def keyword(frequency):  #Idea: Change it monitor other sites. Also, make it right to a file so that it doesn't ask in each run.
-    global keywords
-    approve = ["Yes", "yes", "Y", "y"]
-    deny = ["No", "no", "N", "n"]
+# def keyword():  #Idea: Change it monitor other sites. Also, make it right to a file so that it doesn't ask in each run.
+#     global keywords
+#     approve = ["Yes", "yes", "Y", "y"]
+#     deny = ["No", "no", "N", "n"]
 
-    while True:
-        ask = input("Do you want to blacklist certain keywords? (Yes or No) ")
-        if ask in approve:
-            while True:
-                word = input("Please enter the word you want to blacklist (Type 'stop' when you're done)").lower()
-                if word == "stop":
-                    break
-                else:
-                    keywords.add(word)
-            begin(frequency)
-            break
-        elif ask in deny:
-            begin(frequency)
-            break
-        else:
-            print("Please answer with Yes or No.")
+#     while True:
+#         ask = input("Do you want to blacklist certain keywords? (Yes or No) ")
+#         if ask in approve:
+#             while True:
+#                 word = input("Please enter the word you want to blacklist (Type 'stop' when you're done)").lower()
+#                 if word == "stop":
+#                     break
+#                 else:
+#                     keywords.add(word)
+#             begin()
+#             break
+#         elif ask in deny:
+#             begin()
+#             break
+#         else:
+#             print("Please answer with Yes or No.")
 
         # try:
         #     freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) "))
@@ -202,20 +204,24 @@ def keyword(frequency):  #Idea: Change it monitor other sites. Also, make it rig
         #     begin()
         #     break
 
+def childname():
+    global child
+    child = input("What's the child's name? ")
+    begin()
 
-def freq():
-    while True:
-        try:
-            freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) ")) #No real benifit.. delete it ya 3mie
-        except ValueError:
-            print("Please enter a valid number.")
-            continue
+# def freq():
+#     while True:
+#         try:
+#             freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) ")) #No real benifit.. delete it ya 3mie
+#         except ValueError:
+#             print("Please enter a valid number.")
+#             continue
 
-        if freq <= 0:
-            print("Sorry, your response must not be a zero or a negative.")
-            continue
-        else:
-            keyword(freq)
-            break
+#         if freq <= 0:
+#             print("Sorry, your response must not be a zero or a negative.")
+#             continue
+#         else:
+#             childname(freq)
+#             break
 
-freq()
+childname()
