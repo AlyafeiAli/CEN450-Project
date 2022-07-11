@@ -23,7 +23,8 @@ from ourFirebase import *
 
 keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
 titleList = ['chrome', 'teams']  # Social media list
-child = 'null'
+child = 'null' #Initialize child's name variable
+keyboard = False #Initialize keyboard boolean variable
 print("initializing")
 path = glob("tokenzier/*") #Because the tf model will be saved in a random subdirectory inside "tf/".
 os.environ["TFHUB_CACHE_DIR"] = "tokenzier/"  # Set tf model download path
@@ -138,11 +139,11 @@ def process():  # Take screenshots and transcript.
             if get_prediction(line2.strip()):  # Toxic
                 # Inside get prediction, do for each line (Done already in one of the files)
                 print('Toxic line: ', line.strip())
-                send(child, line.strip(), name)
+                send(child, line.strip(), name, keyboard)
                 print("")
             else:
                 print("Safe line: ", line.strip())
-                # send(child, line.strip(), name) #For testing
+                # send(child, line.strip(), name, keyboard) #For testing
                 print("")
 
         print('Done taking screenshot and OCRing')
@@ -206,7 +207,11 @@ def begin():  # Delete the files after 24 hours have passed, then call supreme a
 
 def childname():
     global child
+    global keyboard
     child = input("What's the child's name? ")
+    kb = input("Using keyboard? (n/y))
+    if kb == "y":
+        keyboard = True
     begin()
 
 # def freq():
