@@ -13,9 +13,11 @@ firebase_admin.initialize_app(cred, {
 
 # print(ref.get())
 
-def send(child, sentence, imgname):
-    txt = db.reference('parent/child/'+child+"/reports/")
-    txt.push({"text":sentence, "image":imagelink(imgname)})
+def send(child, sentence, imgname, keyboard=False):
+    # txt = db.reference('parent/child/' + child + "/reports/")
+    # txt.push({"text": sentence, "image": imgname})
+    db.reference('parent/child/' + child).update({"name": child, "hasKeyboard": keyboard})
+    db.reference('parent/child/' + child + '/reports/').push({"text": sentence, "image":imagelink(imgname)})
     print("Sent to DB")
     # print(ref.get())
 
