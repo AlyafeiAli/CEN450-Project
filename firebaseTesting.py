@@ -12,15 +12,21 @@ firebase_admin.initialize_app(cred, {
     'databaseURL': "https://xxx.firebaseio.com"
 })
 
-child = input("What's the child's name? ")
-txt = db.reference('parent/child/'+child+"/reports/")
-# print(ref.get())
-
-def send(sentence):
-    txt.push({"text":sentence, "image":imagelink('test')})
+def send(child, sentence, imgname, keyboard=False):
+    # txt = db.reference('parent/child/' + child + "/reports/")
+    # txt.push({"text": sentence, "image": imgname})
+    db.reference('parent/child/' + child).update({"name": child, "hasKeyboard": keyboard})
+    db.reference('parent/child/' + child + '/reports/').push({"text": sentence, "image": imgname})
     print("Sent to DB")
 
 while True:
-    send(input("What to write? "))
+    child = input("What's the child's name? ")
+    txt = input("What to write? ")
+    image = input("Image link? ")
+    keyboard = input("has keyboard? (n/y) ")
+    if keyboard == "n":
+        send(child, txt, image)
+    elif keyboard == "y":
+        send(child, txt, image, True)
     # upload()
     sleep(1)
