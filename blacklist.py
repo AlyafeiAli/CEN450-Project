@@ -8,7 +8,7 @@ from firebaseUpdate import *
 cred = credentials.Certificate("firebase/firebase.json")
 # Initialize the app with a service account, granting admin privileges
 firebase_admin.initialize_app(cred, {
-    'databaseURL': "https://cen450-test-default-rtdb.firebaseio.com"
+    'databaseURL': "https://xxx.firebaseio.com"
 })
 
 def blacklist(line):
