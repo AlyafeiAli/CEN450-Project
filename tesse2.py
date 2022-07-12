@@ -8,7 +8,7 @@ import pandas
 
 # https://www.geeksforgeeks.org/text-detection-and-extraction-using-opencv-and-ocr/
 # https://stackoverflow.com/a/67272995/19324525
-# Keep the countour commands, it performes btter with them even though they don't work asasn
+# Keep the countour commands, it performes better with them even though they don't do anything
 
 def ocr(image, filedate):
     img = "./process/"
@@ -40,11 +40,11 @@ def ocr(image, filedate):
 
     # Apply OCR on the cropped image
     results = pytesseract.image_to_data(cropped, output_type='data.frame',
-                                        config="--psm 12 -l eng -c tessedit_char_whitelist==abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\\ \\'\\?")
-    text = pytesseract.image_to_string(cropped,
-                                       config="--psm 12 -l eng -c tessedit_char_whitelist==abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\\ \\'\\?")
+                                        config="--psm 11 -l eng -c tessedit_char_whitelist==abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\\ \\'\\?")
+    # text = pytesseract.image_to_string(cropped,
+    #                                    config="--psm 12 -l eng -c tessedit_char_whitelist==abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ\\ \\'\\?")
 
-    text = results[results.conf >= 70]  # Ignore each word below threshold
+    text = results[results.conf >= 60]  # Ignore each word below threshold
     lines = text.groupby(['page_num', 'block_num', 'par_num', 'line_num'])['text'].apply(
         lambda x: ' '.join(list(x))).tolist()
     # print(lines)
