@@ -23,20 +23,20 @@ from ourFirebase import *
 
 keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
 titleList = ['chrome', 'teams']  # Social media list
-child = 'null' #Initialize child's name variable
-keyboard = False #Initialize keyboard boolean variable
+child = 'null'  # Initialize child's name variable
+keyboard = False  # Initialize keyboard boolean variable
 print("initializing")
-path = glob("tokenzier/*") #Because the tf model will be saved in a random subdirectory inside "tf/".
+path = glob("tokenzier/*")  # Because the tf model will be saved in a random subdirectory inside "tf/".
 os.environ["TFHUB_CACHE_DIR"] = "tokenzier/"  # Set tf model download path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Filter out INFO & WARNING messages
-FullTokenizer = bert.bert_tokenization.FullTokenizer  #This is where it takes long time
+FullTokenizer = bert.bert_tokenization.FullTokenizer  # This is where it takes long time
 bert_layer = hub.KerasLayer(path[0], trainable=False) if os.path.isdir("tokenzier") else hub.KerasLayer(
-    "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/4", trainable=False) #Don't download again after initial setup
+    "https://tfhub.dev/tensorflow/bert_en_uncased_L-12_H-768_A-12/4",
+    trainable=False)  # Don't download again after initial setup
 vocab_file = bert_layer.resolved_object.vocab_file.asset_path.numpy()  # Have access to vocab file for tokenizer
 do_lower_case = bert_layer.resolved_object.do_lower_case.numpy()
 tokenizer = FullTokenizer(vocab_file, do_lower_case)
 cwd = os.getcwd()
-
 
 
 def encode_sentence(sent):
@@ -125,7 +125,7 @@ def process():  # Take screenshots and transcript.
         img.save(name, 'png')
         ocr(name, formated_datetime)
 
-        #Get lines from text file
+        # Get lines from text file
         txt = "./process/"
         txt += formated_datetime
         ext = '.txt'
@@ -192,27 +192,28 @@ def begin():  # Delete the files after 24 hours have passed, then call supreme a
 #         else:
 #             print("Please answer with Yes or No.")
 
-        # try:
-        #     freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) "))
-        # except ValueError:
-        #     print("Please enter a valid number.")
-        #     continue
-        #
-        # if freq <= 0:
-        #     print("Sorry, your response must not be a zero or a negative.")
-        #     continue
-        # else:
-        #     begin()
-        #     break
+# try:
+#     freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) "))
+# except ValueError:
+#     print("Please enter a valid number.")
+#     continue
+#
+# if freq <= 0:
+#     print("Sorry, your response must not be a zero or a negative.")
+#     continue
+# else:
+#     begin()
+#     break
 
 def childname():
     global child
     global keyboard
     child = input("What's the child's name? ")
-    kb = input("Using keyboard? (n/y))
+    kb = input("Using keyboard? (n/y)")
     if kb == "y":
         keyboard = True
     begin()
+
 
 # def freq():
 #     while True:
