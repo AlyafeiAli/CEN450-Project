@@ -20,9 +20,10 @@ import bert
 import sys
 from glob import glob
 from ourFirebase import *
+from blacklist import *
 
 keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
-titleList = ['chrome', 'teams']  # Social media list
+titleList = ['chrome', 'telegram']  # Social media list
 child = 'null'  # Initialize child's name variable
 keyboard = False  # Initialize keyboard boolean variable
 print("initializing")
@@ -91,24 +92,38 @@ def process():  # Take screenshots and transcript.
     #                                int(cars.left + cars.width),
     #                                int(cars.top + cars.height)))
 
-    titles = gw.getAllTitles()
-    print(titles)
-    titles_lower = [each_string.lower() for each_string in titles]  # lowercase all titles
-    print(titles_lower)
+    # titles = gw.getAllTitles()
+    # print(titles)
+    # titles_lower = [each_string.lower() for each_string in titles]  # lowercase all titles
+    # print(titles_lower)
 
-    for check in titleList:  # https://bit.ly/3xojAvH
-        title = any(check in string for string in titles_lower)
-        # print(title)
-        if title:
-            title = [string for string in titles_lower if check in string]
+    # for check in titleList:  # https://bit.ly/3xojAvH
+    #     title = any(check in string for string in titles_lower)
+    #     if title:
+    #         title = [string for string in titles_lower if check in string]
+    #         break
+
+    # if len(title) != 0:
+    #     # print(title)
+    #     print("titttttttttle ",title)
+    #     window = gw.getWindowsWithTitle(title[0])[0]  # Any string in the title will do
+    #     print("windowwwww ", window)
+    # active_window = False
+
+
+    title = gw.getActiveWindowTitle().lower()
+    print(title)
+    activeTitle = []
+    for check in titleList:
+        if check in title:
+            activeTitle = [check]
             break
+    print("activeTitle = ", activeTitle)
 
-    if len(title) != 0:
-        # print(title)
-        window = gw.getWindowsWithTitle(title[0])[0]  # Any string in the title will do
+    if len(activeTitle) != 0:
+        window = gw.getWindowsWithTitle(activeTitle[0])[0]
 
     active_window = False
-
     try:
         active_window = window.isActive
     except Exception as e:
@@ -139,6 +154,10 @@ def process():  # Take screenshots and transcript.
             if get_prediction(line2.strip()):  # Toxic
                 # Inside get prediction, do for each line (Done already in one of the files)
                 print('Toxic line: ', line.strip())
+                send(child, line.strip(), name, keyboard)
+                print("")
+            elif blacklist(line.strip()):
+                print('Blcklist line: ', line.strip())
                 send(child, line.strip(), name, keyboard)
                 print("")
             else:
