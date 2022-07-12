@@ -22,8 +22,7 @@ from glob import glob
 from ourFirebase import *
 from blacklist import *
 
-keywords = {"not-so-nice-words"}  # set, to avoid duplicates - fallback in case of a false negative
-titleList = ['chrome', 'telegram']  # Social media list
+titleList = ['whatsapp', 'telegram', 'twitter', 'facebook', 'chrome']  # Social media list
 child = 'null'  # Initialize child's name variable
 keyboard = False  # Initialize keyboard boolean variable
 print("initializing")
