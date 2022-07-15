@@ -53,7 +53,7 @@ def ocr(image, filedate):
     txt += filedate
     ext = '.txt'
     txt += ext
-    file = open(txt, "w+")
+    file = open(txt, "a+")
     for i in range(len(lines)):
         if (lines[i].strip()) and (len(lines[i].split()) > 1):  # Don't accept empty line or single word lines
             print(lines[i])
