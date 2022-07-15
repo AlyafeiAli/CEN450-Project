@@ -21,11 +21,11 @@ import sys
 from glob import glob
 from ourFirebase import *
 from blacklist import *
-
+cwd = os.getcwd()
+# print(cwd)
 titleList = ['whatsapp', 'telegram', 'twitter', 'facebook', 'chrome']  # Social media list
-child = 'null'  # Initialize child's name variable
 keyboard = False  # Initialize keyboard boolean variable
-print("initializing")
+# print("initializing...")
 path = glob("tokenzier/*")  # Because the tf model will be saved in a random subdirectory inside "tf/".
 os.environ["TFHUB_CACHE_DIR"] = "tokenzier/"  # Set tf model download path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Filter out INFO & WARNING messages
@@ -36,7 +36,9 @@ bert_layer = hub.KerasLayer(path[0], trainable=False) if os.path.isdir("tokenzie
 vocab_file = bert_layer.resolved_object.vocab_file.asset_path.numpy()  # Have access to vocab file for tokenizer
 do_lower_case = bert_layer.resolved_object.do_lower_case.numpy()
 tokenizer = FullTokenizer(vocab_file, do_lower_case)
-cwd = os.getcwd()
+
+
+
 
 
 def encode_sentence(sent):
@@ -65,13 +67,81 @@ def supreme():  # Create the directory, then call the screenshot/transcript proc
     except OSError as error:
         pass
     counter = 0
-    for x in range(5):  # number of iterations to make before erasing everything (Idea: set to purge every 24 hours)
+    for x in range(100):  # number of iterations to make before erasing everything (Idea: set to purge every 24 hours)
         counter += 1
-        sleep(5)
-        process() if counter <= 4 else begin()
+        process() if counter <= 99 else begin()
 
 
 def process():  # Take screenshots and transcript.
+    active_window = False
+    try:
+        title = gw.getActiveWindowTitle().lower()  # get the title of the active window
+        activeTitle = []
+        for check in titleList:
+            if check in title:  # check if the title is in the monitoring list
+                activeTitle = [check]
+                break
+        if len(activeTitle) != 0:
+            window = gw.getWindowsWithTitle(activeTitle[0])[0]
+        try:
+            active_window = window.isActive
+        except Exception as e:
+            sleep(0.5)
+            pass
+            # print("Window not found")
+    except:
+        sleep(0.5)
+        pass
+
+    if active_window:
+        img = ImageGrab.grab(bbox=(int(window.left),
+                                   int(window.top),
+                                   int(window.left + window.width),
+                                   int(window.top + window.height)))
+        dt = datetime.now()
+        formatted_datetime = dt.strftime('%Y%m%d_%H-%M-%S')
+        name = "./process/screenshot-{}.png".format(formatted_datetime)
+        img.save(name, 'png')
+        ocr(name, formatted_datetime)
+
+        # Get lines from text file
+        txt = "./process/"
+        txt += formatted_datetime
+        ext = '.txt'
+        txt += ext
+        file = open(txt, "r")
+        Lines = file.readlines()
+        toxic = False
+        txtline = "null"
+        for line in Lines:
+            line2 = line.strip() + " o o o o o o o o"
+            # print("with strip: ", line)
+            # print("without strip: ", line.strip())
+            if get_prediction(line2.strip()):  # Toxic
+                toxic = True
+                txtline = line.strip()
+                # print('Toxic line: ', line.strip())
+                # send(line.strip(), name, keyboard)
+                # print("")
+            elif blacklist(line.strip()):   # Blacklist
+                toxic = True
+                txtline = line.strip()
+                # print('Blcklist line: ', line.strip())
+                # send(line.strip(), name, keyboard)
+                # print("")
+            else:
+                toxic = False
+                pass
+                # print("Safe line: ", line.strip())
+                # send(child, line.strip(), name, keyboard) #For testing
+                # print("")
+        if toxic:
+            send(txtline, name, keyboard)
+        # print('Done taking screenshot and OCRing')
+    else:
+        sleep(5)
+        pass
+        # print("No chat app found")
 
     # ADD condition: AND not minimzed (or isFocused is better)
     # I mean for gw.getWindowswithTitle() or gw.getAllTitles()
@@ -110,65 +180,6 @@ def process():  # Take screenshots and transcript.
     # active_window = False
 
 
-    title = gw.getActiveWindowTitle().lower()
-    print(title)
-    activeTitle = []
-    for check in titleList:
-        if check in title:
-            activeTitle = [check]
-            break
-    print("activeTitle = ", activeTitle)
-
-    if len(activeTitle) != 0:
-        window = gw.getWindowsWithTitle(activeTitle[0])[0]
-
-    active_window = False
-    try:
-        active_window = window.isActive
-    except Exception as e:
-        print("Window not found")
-
-    if active_window:
-        img = ImageGrab.grab(bbox=(int(window.left),
-                                   int(window.top),
-                                   int(window.left + window.width),
-                                   int(window.top + window.height)))
-        dt = datetime.now()
-        formated_datetime = dt.strftime('%Y%m%d_%H-%M-%S')
-        name = "./process/screenshot-{}.png".format(formated_datetime)
-        img.save(name, 'png')
-        ocr(name, formated_datetime)
-
-        # Get lines from text file
-        txt = "./process/"
-        txt += formated_datetime
-        ext = '.txt'
-        txt += ext
-        file = open(txt, "r")
-        Lines = file.readlines()
-        for line in Lines:
-            line2 = line.strip() + " o o o o o o o o"
-            # print("with strip: ", line)
-            # print("without strip: ", line.strip())
-            if get_prediction(line2.strip()):  # Toxic
-                # Inside get prediction, do for each line (Done already in one of the files)
-                print('Toxic line: ', line.strip())
-                send(child, line.strip(), name, keyboard)
-                print("")
-            elif blacklist(line.strip()):
-                print('Blcklist line: ', line.strip())
-                send(child, line.strip(), name, keyboard)
-                print("")
-            else:
-                print("Safe line: ", line.strip())
-                # send(child, line.strip(), name, keyboard) #For testing
-                print("")
-
-        print('Done taking screenshot and OCRing')
-    else:
-        print("No chat app found")
-
-
 def begin():  # Delete the files after 24 hours have passed, then call supreme again.
 
     shutil.rmtree('process',
@@ -188,10 +199,8 @@ def begin():  # Delete the files after 24 hours have passed, then call supreme a
     #     pass
 
 
-# def keyword():  #Idea: Change it monitor other sites. Also, make it right to a file so that it doesn't ask in each run.
-#     global keywords
-#     approve = ["Yes", "yes", "Y", "y"]
-#     deny = ["No", "no", "N", "n"]
+# def keyword():  #Idea: Change it monitor other sites. Also, make it right to a file so that it doesn't ask in each
+# run. global keywords approve = ["Yes", "yes", "Y", "y"] deny = ["No", "no", "N", "n"]
 
 #     while True:
 #         ask = input("Do you want to blacklist certain keywords? (Yes or No) ")
@@ -223,23 +232,9 @@ def begin():  # Delete the files after 24 hours have passed, then call supreme a
 #     begin()
 #     break
 
-def childname():
-    global child
-    global keyboard
-    child = input("What's the child's name? ")
-    kb = input("Using keyboard? (n/y)")
-    if kb == "y":
-        keyboard = True
-    begin()
 
-
-# def freq():
-#     while True:
-#         try:
-#             freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) ")) #No real benifit.. delete it ya 3mie
-#         except ValueError:
-#             print("Please enter a valid number.")
-#             continue
+# def freq(): while True: try: freq = int(input("How Frequently Should we Take Screenshots? (In Seconds) ")) #No real
+# benifit.. delete it ya 3mie except ValueError: print("Please enter a valid number.") continue
 
 #         if freq <= 0:
 #             print("Sorry, your response must not be a zero or a negative.")
@@ -248,4 +243,4 @@ def childname():
 #             childname(freq)
 #             break
 
-childname()
+begin()
