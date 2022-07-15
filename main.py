@@ -1,6 +1,6 @@
 import pyautogui  # https://github.com/asweigart/PyGetWindow/issues/26#issuecomment-945001903
 import os
-from tesse2 import *
+from tesseract import *
 from time import sleep
 from PIL import ImageGrab
 from datetime import datetime
@@ -25,7 +25,7 @@ cwd = os.getcwd()
 # print(cwd)
 titleList = ['whatsapp', 'telegram', 'twitter', 'facebook', 'chrome']  # Social media list
 keyboard = False  # Initialize keyboard boolean variable
-# print("initializing...")
+print("initializing...")
 path = glob("tokenzier/*")  # Because the tf model will be saved in a random subdirectory inside "tf/".
 os.environ["TFHUB_CACHE_DIR"] = "tokenzier/"  # Set tf model download path
 os.environ['TF_CPP_MIN_LOG_LEVEL'] = '2'  # Filter out INFO & WARNING messages
@@ -52,11 +52,11 @@ def get_prediction(sentence):
     output = model(inputs, training=False)
     sentiment = math.floor(output * 2)
     if output < 0.85:
-        # print("Output of the model: {}\nPredicted: NOT Toxic".format(output))
+#         print("Output of the model: {}\nPredicted: NOT Toxic".format(output))
         return False
 
     elif output >= 0.85:
-        # print("Output of the model: {}\nPredicted: TOXIC".format(output))
+#         print("Output of the model: {}\nPredicted: TOXIC".format(output))
         return True
 
 
@@ -120,28 +120,28 @@ def process():  # Take screenshots and transcript.
             if get_prediction(line2.strip()):  # Toxic
                 toxic = True
                 txtline = line.strip()
-                # print('Toxic line: ', line.strip())
+                print('Toxic line: ', line.strip())
                 # send(line.strip(), name, keyboard)
-                # print("")
+                print("")
             elif blacklist(line.strip()):   # Blacklist
                 toxic = True
                 txtline = line.strip()
-                # print('Blcklist line: ', line.strip())
+                print('Blcklist line: ', line.strip())
                 # send(line.strip(), name, keyboard)
-                # print("")
+                print("")
             else:
                 toxic = False
                 pass
-                # print("Safe line: ", line.strip())
+                print("Safe line: ", line.strip())
                 # send(child, line.strip(), name, keyboard) #For testing
-                # print("")
+                print("")
         if toxic:
             send(txtline, name, keyboard)
-        # print('Done taking screenshot and OCRing')
+        print('Done taking screenshot and OCRing')
     else:
         sleep(5)
         pass
-        # print("No chat app found")
+        print("No chat app found")
 
     # ADD condition: AND not minimzed (or isFocused is better)
     # I mean for gw.getWindowswithTitle() or gw.getAllTitles()
